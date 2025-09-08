@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/1052689875.svg)](https://doi.org/10.5281/zenodo.17078682)
+
 Shield: [![CC BY 4.0][cc-by-shield]][cc-by]
 
 This work is licensed under a
