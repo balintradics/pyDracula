@@ -26,5 +26,98 @@ DOI:https://doi.org/10.1103/PhysRevA.90.032704
 
 sqlite3 (tested 3.20.1), python (tested with 2.7), pygsl (2.2.0), matplotlib, numpy
 
+## Usage example:
+
+To use the code, first unzip the file `hydrogenDB.zip` and name it to `hydrogenDB.db`.
+The code needs to be steered by a python script. Here is a self-explanatory example:
+
+```
+import matplotlib.pyplot as plt
+from numpy import array
+import numpy as np
+from Dracula import Dracula
 
 
+# 1. Overlap a dense positron plasma and a bare antiproton plasma
+
+d = Dracula(NStates = 150, positron_temp =50, positron_density = 1e14, antiproton_number = 100000, time = 20, magnetic_field= 2, radiationTemp = 300, useBlackBody = True, saveGSSteps = True)
+
+# Read the various rate coefficients
+d.SetSQLDbScat("hydrogenDB.db", True)
+d.SetSQLDbRadDec("hydrogenDB.db", True)
+
+# Evolve the system to form bound states
+d.Compute()
+
+# Save the level population into CSV file (Principal QN, Population)
+d.SaveLevelPopCSV("overlap.csv")
+
+# Save the states and steps for further processing
+levpop = d.GetLevelPop()
+steps = d.GetSaveSteps()
+steps = array(steps)
+```
+
+The running and the output of this code (see also in `main1.py`) should be something similar as below:
+
+```
+$ python3.9 main1.py
+Reading in scattering rates from sqlite3 file hydrogenDB.db ...
+Reading radiative recombination rates from sqlite3 file hydrogenDB.db...
+Reading in decay rates from sqlite3 file hydrogenDB.db...this might take a while...
+Beginning computation...
+Initial level population...
+[     0.      0.      0.      0.      0.      0.      0.      0.      0.
+      0.      0.      0.      0.      0.      0.      0.      0.      0.
+      0.      0.      0.      0.      0.      0.      0.      0.      0.
+      0.      0.      0.      0.      0.      0.      0.      0.      0.
+      0.      0.      0.      0.      0.      0.      0.      0.      0.
+      0.      0.      0.      0.      0.      0.      0.      0.      0.
+      0.      0.      0.      0.      0.      0.      0.      0.      0.
+      0.      0.      0.      0.      0.      0.      0.      0.      0.
+      0.      0.      0.      0.      0.      0.      0.      0.      0.
+      0.      0.      0.      0.      0.      0.      0.      0.      0.
+      0.      0.      0.      0.      0.      0.      0.      0.      0.
+      0.      0.      0.      0.      0.      0.      0.      0.      0.
+      0.      0.      0.      0.      0.      0.      0.      0.      0.
+      0.      0.      0.      0.      0.      0.      0.      0.      0.
+      0.      0.      0.      0.      0.      0.      0.      0.      0.
+      0.      0.      0.      0.      0.      0.      0.      0.      0.
+      0.      0.      0.      0.      0.      0. 100000.]
+# Using stepper bsimp with order 12
+Starting integration...
+Time, Stepsize, GS lev.pop.:  1e-09 5e-09 2.6180173762271302e-08
+Time, Stepsize, GS lev.pop.:  6e-09 2.0098642105860833e-08 2.071596291781851e-07
+Time, Stepsize, GS lev.pop.:  2.6098642105860834e-08 6.445684635190868e-08 1.2080067941320795e-06
+Time, Stepsize, GS lev.pop.:  9.055548845776951e-08 1.9283124624884672e-07 6.177346616506293e-06
+Time, Stepsize, GS lev.pop.:  2.8338673470661623e-07 5.367713321628146e-07 3.920845870959867e-05
+Time, Stepsize, GS lev.pop.:  8.201580668694309e-07 1.432841847333307e-06 0.0002646255156388598
+Time, Stepsize, GS lev.pop.:  2.252999914202738e-06 3.5232744129159972e-06 0.001439768926144104
+Time, Stepsize, GS lev.pop.:  5.776274327118735e-06 8.979483285975207e-06 0.006943831374921808
+Time, Stepsize, GS lev.pop.:  1.4755757613093942e-05 2.3365864256816616e-05 0.043651905234487906
+Time, Stepsize, GS lev.pop.:  1.9999999999999998e-05 2.622121193453028e-05 0.08559158162159901
+Total number of bound states :20.075127807168034, number of GS antiH: 0.08559158162159901, burned antiprotons 20.075127806601813
+Saving result to csv file overlap.csv
+```
+The contents (principal QN, population) of the output CSV can be easily plotted:
+
+```
+import matplotlib.pyplot as plt
+import numpy as np
+
+data = np.genfromtxt('overlap.csv', delimiter=',', skip_header=0,
+                     skip_footer=0, names=['n', 'h'])
+
+fig = plt.figure()
+
+ax1 = fig.add_subplot(111)
+ax1.semilogy(data['n'], data['h'], color='r', marker='.', linestyle='None', label='overlap')
+ax1.set_xlabel('N principal qn')
+ax1.set_ylabel('N. or atoms [a.u.]')
+
+plt.legend(bbox_to_anchor=(0.8, 0.5), loc=2, borderaxespad=0.)
+
+plt.grid(True)
+
+plt.show()
+```
