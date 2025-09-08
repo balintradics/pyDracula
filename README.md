@@ -41,6 +41,7 @@ from Dracula import Dracula
 
 
 # 1. Overlap a dense positron plasma and a bare antiproton plasma
+# Units: positron_temp (K), positron_density (m^{-3}), antiproton_number (1), magnetic_field (T), time (microseconds), radiationTemp (K), 
 
 d = Dracula(NStates = 150, positron_temp =50, positron_density = 1e14, antiproton_number = 100000, time = 20, magnetic_field= 2, radiationTemp = 300, useBlackBody = True, saveGSSteps = True)
 
