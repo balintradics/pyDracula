@@ -121,3 +121,6 @@ plt.grid(True)
 
 plt.show()
 ```
+This should result in a plot similar to the following:
+
+![Ground-state antihydrogen level population](/Images/Figure_1.png)
